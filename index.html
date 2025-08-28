@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>रोज - वस्तुनिष्ठ प्रश्नोत्तरी</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .ad-container {
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        h1, h2 {
+            color: #1a73e8;
+            text-align: center;
+            border-bottom: 2px solid #1a73e8;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        #question-area {
+            min-height: 150px;
+            margin-bottom: 20px;
+        }
+
+        #question-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 10px;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .options label:hover {
+            background-color: #e8f0fe;
+        }
+        
+        .options input[type="radio"]:checked + span {
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        
+        .options label.selected {
+             background-color: #e8f0fe;
+             border-color: #1a73e8;
+        }
+
+        .options input[type="radio"] {
+            margin-right: 12px;
+        }
+        
+        #navigation-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #fff;
+            background-color: #1a73e8;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: #155ab3;
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn#prev-btn {
+            background-color: #6c757d;
+        }
+        .nav-btn#prev-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #welcome-container, #results-container {
+            text-align: center;
+        }
+
+        #quiz-container, #results-container {
+            display: none;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        #progress-indicator {
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* ====== NEW AND IMPROVED RESULT STYLES ====== */
+        #score-breakdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .summary-card {
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 130px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-label {
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .summary-count {
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .correct-summary {
+            background-color: #e8f5e9; /* Light Green */
+            border-bottom: 4px solid #4caf50;
+        }
+        .correct-summary .summary-count {
+            color: #4caf50; /* Dark Green */
+        }
+
+        .incorrect-summary {
+            background-color: #ffebee; /* Light Red */
+            border-bottom: 4px solid #f44336;
+        }
+        .incorrect-summary .summary-count {
+            color: #f44336; /* Dark Red */
+        }
+
+        .unanswered-summary {
+            background-color: #f5f5f5; /* Light Grey */
+            border-bottom: 4px solid #6c757d;
+        }
+        .unanswered-summary .summary-count {
+            color: #6c757d; /* Dark Grey */
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- ====== Top Ad Slot ====== -->
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '4b505c9273cf9161c278efee028f35e2',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/4b505c9273cf9161c278efee028f35e2/invoke.js"></script>
+    </div>
+
+    <!-- ====== Main Quiz Container ====== -->
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcome-container">
+            <h1>रोज - वस्तुनिष्ठ प्रश्नोत्तरी</h1>
+            <p>टेस्ट शुरू करने से पहले कृपया अपना नाम दर्ज करें।</p>
+            <input type="text" id="userName" placeholder="अपना नाम यहाँ लिखें">
+            <button class="nav-btn" id="start-btn" style="width: 100%;">क्विज़ शुरू करें</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-container">
+            <h2>कक्षा 12 | हिंदी पाठ - 5 "रोज"</h2>
+            <div id="question-area">
+                <!-- Current Question will be loaded here -->
+            </div>
+
+            <div id="navigation-area">
+                <button class="nav-btn" id="prev-btn">पिछला</button>
+                <span id="progress-indicator"></span>
+                <button class="nav-btn" id="next-btn">अगला</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-container">
+            <h2 id="result-heading">आपका परिणाम</h2>
+            <p id="score-text" style="font-size: 1.5em; font-weight: bold; text-align: center;"></p>
+            <div id="score-breakdown"></div>
+            <button class="nav-btn" id="retry-btn" style="margin-top:20px; width: 100%;">फिर से प्रयास करें</button>
+        </div>
+    </div>
+    
+    <!-- ====== Bottom Ad Slot ====== -->
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '4b505c9273cf9161c278efee028f35e2',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/4b505c9273cf9161c278efee028f35e2/invoke.js"></script>
+    </div>
+
+    <script>
+        const quizData = [
+            // Questions from the image
+            { question: "'रोज' शीर्षक कहानी के लेखक हैं?", options: ["रामधारी सिंह 'दिनकर'", "अज्ञेय", "मोहन राकेश", "उदय प्रकाश"], answer: "B" },
+            { question: "'रोज' कहानी की नायिका कौन है?", options: ["मालती", "कलावती", "सुनीता", "रागिनी"], answer: "A" },
+            { question: "मालती के पति का नाम क्या है?", options: ["चंदेश्वर", "रामेश्वर", "महेश्वर", "रामनाथ"], answer: "C" },
+            { question: "अज्ञेय के पिता का नाम क्या था?", options: ["डॉ. अभयानन्द शास्त्री", "डॉ. दयानंद शास्त्री", "डॉ. हीरानंद शास्त्री", "डॉ. अच्युतानन्द शास्त्री"], answer: "C" },
+            { question: "निम्न में से किस कहानी में 'गैंग्रीन' का उल्लेख है?", options: ["उसने कहा था", "रोज", "तिरिछ", "रस्सी का टुकड़ा"], answer: "B" },
+            { question: "'मालती' किस कहानी की पात्रा है?", options: ["सिपाही की माँ", "रोज", "तिरिछ", "गौरा"], answer: "B" },
+            { question: "बचपन में खेलने के लिए सच्चिदानंद हीरानंद वात्स्यायन अज्ञेय ने कौन-सा नाटक लिखा था?", options: ["वज्रसभा", "वरदसभा", "इंद्रसभा", "जनसभा"], answer: "C" },
+            { question: "'रोज' शीर्षक कहानी में मालती मिट्टी का बर्तन गरम पानी में क्यों धो रही है?", options: ["खाना रखने के लिए", "खाना बनाने के लिए", "पानी रखने के लिए", "दही जमाने के लिए"], answer: "D" },
+            { question: "मालती के बच्चे का नाम क्या था?", options: ["टिटी", "सिटी", "किटी", "चिट्टी"], answer: "A" },
+            { question: "अज्ञेय जी ने नियमित लेखन कब शुरू किया?", options: ["1918 ई. के बाद", "1920 ई. के बाद", "1930 ई. के बाद", "1925 ई. के बाद"], answer: "D" },
+            { question: "स्वाधीनता आंदोलन में उग्र और विद्रोही विचारधारा वाले एक क्रांतिकारी के रूप में किनकी भूमिका रही?", options: ["ओमप्रकाश वाल्मीकि", "उदय प्रकाश", "सच्चिदानंद हीरानंद वात्स्यायन 'अज्ञेय'", "जे. कृष्णमूर्ति"], answer: "C" },
+            
+            // Additional 39 Questions
+            { question: "अज्ञेय का जन्म कब हुआ था?", options: ["7 मार्च, 1911", "8 मार्च, 1912", "9 मार्च, 1913", "10 मार्च, 1914"], answer: "A" },
+            { question: "अज्ञेय का निधन कब हुआ था?", options: ["3 अप्रैल, 1986", "4 अप्रैल, 1987", "5 अप्रैल, 1988", "6 अप्रैल, 1989"], answer: "B" },
+            { question: "अज्ञेय का जन्म स्थान कहाँ है?", options: ["कुशीनगर, उत्तर प्रदेश", "लमही, वाराणसी", "सिमरिया, बेगूसराय", "गुलेर, कांगड़ा"], answer: "A" },
+            { question: "अज्ञेय का मूल निवास कहाँ था?", options: ["करतारपुर, पंजाब", "जयपुर, राजस्थान", "इलाहाबाद, उत्तर प्रदेश", "पटना, बिहार"], answer: "A" },
+            { question: "मालती के पति पेशे से क्या थे?", options: ["इंजीनियर", "वकील", "अध्यापक", "डॉक्टर"], answer: "D" },
+            { question: "महेश्वर किस बीमारी का ऑपरेशन करके आए थे?", options: ["पथरी", "कैंसर", "गैंग्रीन", "अपेंडिक्स"], answer: "C" },
+            { question: "कहानी में अतिथि बनकर कौन आता है?", options: ["मालती का चाचा", "मालती का मामा", "मालती का भाई", "मालती का पिता"], answer: "C" },
+            { question: "लेखक मालती से कितने वर्षों बाद मिलने आए थे?", options: ["दो वर्ष", "तीन वर्ष", "चार वर्ष", "पाँच वर्ष"], answer: "C" },
+            { question: "मालती का जीवन किस प्रकार का हो गया था?", options: ["खुशहाल", "उत्साहपूर्ण", "यंत्रवत् और ऊबाऊ", "रोमांचक"], answer: "C" },
+            { question: "'तार सप्तक' के संपादक कौन थे?", options: ["रामधारी सिंह दिनकर", "अज्ञेय", "मोहन राकेश", "नामवर सिंह"], answer: "B" },
+            { question: "'शेखर : एक जीवनी' किस विधा की कृति है?", options: ["निबंध", "आलोचना", "उपन्यास", "जीवनी"], answer: "C" },
+            { question: "'नदी के द्वीप' किसकी रचना है?", options: ["मुक्तिबोध", "मलयज", "अज्ञेय", "दिनकर"], answer: "C" },
+            { question: "अज्ञेय को किस कृति पर 'ज्ञानपीठ पुरस्कार' मिला था?", options: ["आँगन के पार द्वार", "कितनी नावों में कितनी बार", "हरी घास पर क्षण भर", "इत्यलम्"], answer: "B" },
+            { question: "अज्ञेय ने इंटर की परीक्षा कहाँ से पास की थी?", options: ["पटना कॉलेज से", "पंजाब कॉलेज से", "मद्रास क्रिश्चियन कॉलेज से", "दिल्ली कॉलेज से"], answer: "C" },
+            { question: "'रोज' कहानी में घंटे की किस खड़कन के साथ कहानी समाप्त होती है?", options: ["नौ", "दस", "ग्यारह", "बारह"], answer: "C" },
+            { question: "मालती के घर का वातावरण आपको कैसा लगा?", options: ["आनंदमय", "उल्लासपूर्ण", "उदास एवं बोझिल", "संगीतमय"], answer: "C" },
+            { question: "महेश्वर शाम को क्या लेकर आए थे?", options: ["फल", "मिठाई", "सब्जी", "आम"], answer: "D" },
+            { question: "'गैंग्रीन' इनमें से किससे संबंधित है?", options: ["पशु", "देश", "वनस्पति", "बीमारी"], answer: "D" },
+            { question: "लेखक और मालती के बीच क्या संबंध था?", options: ["भाई-बहन", "मित्र", "पति-पत्नी", "सहपाठी"], answer: "A" },
+            { question: "अज्ञेय जी ने घर में किस हस्तलिखित पत्रिका का संपादन किया?", options: ["लोकबंधु", "देशबंधु", "आनंद बंधु", "ग्राम बंधु"], answer: "C" },
+            { question: "'रोज' कहानी पहले किस नाम से प्रकाशित हुई थी?", options: ["मालती", "टिटी", "महेश्वर", "गैंग्रीन"], answer: "D" },
+            { question: "अज्ञेय की पहली कहानी किस पत्रिका में प्रकाशित हुई?", options: ["प्रभा में", "ज्योति में", "पत्रिका 'सेवा' में", "माधुरी में"], answer: "C" },
+            { question: "मालती का जीवन किस वस्तु के समान हो गया था जो नियत समय पर चलती है?", options: ["घड़ी", "रेलगाड़ी", "हवा", "पानी"], answer: "A" },
+            { question: "अज्ञेय ने बी.एस.सी. कहाँ से किया था?", options: ["फोरमन कॉलेज, लाहौर", "मद्रास क्रिश्चियन कॉलेज", "पटना कॉलेज", "पंजाब विश्वविद्यालय"], answer: "A" },
+            { question: "'अपने-अपने अजनबी' के रचनाकार कौन हैं?", options: ["जयशंकर प्रसाद", "अज्ञेय", "हजारी प्रसाद द्विवेदी", "दिनकर"], answer: "B" },
+            { question: "मालती के पति किस डिस्पेंसरी में डॉक्टर थे?", options: ["शहर के", "पहाड़ी गाँव की सरकारी", "निजी क्लीनिक", "सेना के अस्पताल"], answer: "B" },
+            { question: "'आँगन के पार द्वार' के लिए अज्ञेय को कौन-सा पुरस्कार मिला?", options: ["ज्ञानपीठ", "साहित्य अकादमी", "पद्म भूषण", "भारत रत्न"], answer: "B" },
+            { question: "लेखक मालती के घर कैसे पहुँचे थे?", options: ["बस से", "ट्रेन से", "पैदल", "कार से"], answer: "C" },
+            { question: "कहानी में कौन हमेशा रोता रहता है?", options: ["मालती", "टिटी", "लेखक", "महेश्वर"], answer: "B" },
+            { question: "अज्ञेय की माता का नाम क्या था?", options: ["शीला देवी", "व्यंती देवी", "राधा देवी", "शकुंतला देवी"], answer: "B" },
+            { question: "महेश्वर का घर किस चीज का बना था?", options: ["ईंट का", "लकड़ी के फट्टों का", "पत्थर का", "मिट्टी का"], answer: "B" },
+            { question: "'रोज' कहानी में भारतीय समाज के किस जीवन स्तर को दर्शाया गया है?", options: ["उच्च वर्ग", "निम्न वर्ग", "मध्यम वर्ग", "ग्रामीण वर्ग"], answer: "C" },
+            { question: "मालती जब रोते शिशु को देखकर आई तो उसके हाथ में क्या था?", options: ["चम्मच", "कटोरी", "चिट्ठियों का बंडल", "आम का कागज"], answer: "D" },
+            { question: "'अरे, यह मैंने बनाया है' - यह वाक्य किसने कहा?", options: ["टिटी ने", "महेश्वर ने", "लेखक ने", "मालती ने"], answer: "D" },
+            { question: "अज्ञेय जी किस वाद से संबंधित हैं?", options: ["छायावाद", "प्रगतिवाद", "प्रयोगवाद", "रहस्यवाद"], answer: "C" }
+        ];
+
+        // --- DOM Element References ---
+        const welcomeContainer = document.getElementById('welcome-container');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        
+        const startBtn = document.getElementById('start-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const retryBtn = document.getElementById('retry-btn');
+
+        const questionArea = document.getElementById('question-area');
+        const scoreText = document.getElementById('score-text');
+        const scoreBreakdown = document.getElementById('score-breakdown');
+        const userNameInput = document.getElementById('userName');
+        const resultHeading = document.getElementById('result-heading');
+        const progressIndicator = document.getElementById('progress-indicator');
+        
+        // --- State Variables ---
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let currentUserName = '';
+
+        // --- Functions ---
+        function showQuestion(index) {
+            const questionData = quizData[index];
+            let questionHTML = `<div id="question-text">${index + 1}. ${questionData.question}</div>
+                                <div class="options">`;
+            
+            questionData.options.forEach((option, i) => {
+                const optionLetter = String.fromCharCode(65 + i);
+                const isChecked = userAnswers[index] === optionLetter ? 'checked' : '';
+                questionHTML += `<label>
+                    <input type="radio" name="q${index}" value="${optionLetter}" ${isChecked}>
+                    <span>(${optionLetter}) ${option}</span>
+                </label>`;
+            });
+            
+            questionHTML += `</div>`;
+            questionArea.innerHTML = questionHTML;
+
+            progressIndicator.innerText = `प्रश्न ${index + 1} / ${quizData.length}`;
+            prevBtn.classList.toggle('hidden', index === 0);
+            nextBtn.innerText = (index === quizData.length - 1) ? 'क्विज़ सबमिट करें' : 'अगला';
+            
+            document.querySelectorAll(`input[name="q${index}"]`).forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    document.querySelectorAll(`#question-area .options label`).forEach(label => label.classList.remove('selected'));
+                    e.target.parentElement.classList.add('selected');
+                });
+            });
+
+            if (userAnswers[index]) {
+                const selectedRadio = document.querySelector(`input[name="q${index}"][value="${userAnswers[index]}"]`);
+                if (selectedRadio) selectedRadio.parentElement.classList.add('selected');
+            }
+        }
+        
+        function saveAnswer() {
+            const selectedOption = document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`);
+            if (selectedOption) userAnswers[currentQuestionIndex] = selectedOption.value;
+        }
+
+        function startQuiz() {
+            currentUserName = userNameInput.value.trim();
+            if (currentUserName === "") {
+                alert("कृपया अपना नाम दर्ज करें!");
+                return;
+            }
+            
+            currentQuestionIndex = 0;
+            userAnswers = new Array(quizData.length).fill(null);
+            
+            welcomeContainer.style.display = 'none';
+            resultsContainer.style.display = 'none';
+            quizContainer.style.display = 'block';
+            
+            showQuestion(currentQuestionIndex);
+        }
+
+        function showResults() {
+            let score = 0;
+            let unansweredCount = 0;
+
+            quizData.forEach((item, index) => {
+                if (userAnswers[index] === null) {
+                    unansweredCount++;
+                } else if (userAnswers[index] === item.answer) {
+                    score++;
+                }
+            });
+
+            const incorrectCount = quizData.length - score - unansweredCount;
+
+            resultHeading.innerText = `बहुत बढ़िया, ${currentUserName}!`;
+            scoreText.innerText = `आपका कुल स्कोर: ${quizData.length} में से ${score}`;
+            
+            // ====== NEW AND IMPROVED RESULT HTML STRUCTURE ======
+            scoreBreakdown.innerHTML = `
+                <div class="summary-card correct-summary">
+                    <span class="summary-label">सही जवाब</span>
+                    <span class="summary-count">✓ ${score}</span>
+                </div>
+                <div class="summary-card incorrect-summary">
+                    <span class="summary-label">गलत जवाब</span>
+                    <span class="summary-count">✗ ${incorrectCount}</span>
+                </div>
+                <div class="summary-card unanswered-summary">
+                    <span class="summary-label">छोड़े गए</span>
+                    <span class="summary-count">? ${unansweredCount}</span>
+                </div>
+            `;
+
+            quizContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+        }
+
+        // --- Event Listeners ---
+        startBtn.addEventListener('click', startQuiz);
+
+        nextBtn.addEventListener('click', () => {
+            saveAnswer();
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
+            } else {
+                showResults();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            saveAnswer();
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion(currentQuestionIndex);
+            }
+        });
+
+        retryBtn.addEventListener('click', () => {
+            resultsContainer.style.display = 'none';
+            welcomeContainer.style.display = 'block';
+            userNameInput.value = '';
+        });
+
+    </script>
+</body>
+</html>
